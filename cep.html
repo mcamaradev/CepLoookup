@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brazilian CEP Lookup</title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #f78ca0, #f9748f, #fd868c, #fe9a8b, #feca8d);
+    padding-top: 50px;
+    /* cursor:url(https://cdn.custom-cursor.com/db/pointer/32/Cute_Unicorn_Pointer.png) , pointer!important */
+  }
+
+  form#form-cep{
+    max-width: 500px;
+    margin: 0 auto;
+    margin-bottom: 50px;
+    text-align: left;
+    padding: 20px;
+    background: rgba(243, 73, 175, 0.171);
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+    scale: 1.2;
+   
+  }
+  form {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: left;
+    padding: 20px;
+    background: rgba(243, 73, 175, 0.171);
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: solid 1px rgb(69, 69, 69);
+    border-radius: 20px;
+    background-color: #fcfcfcc7;
+    /* cursor:url(https://cdn.custom-cursor.com/db/pointer/32/Cute_Unicorn_Pointer.png) , pointer!important */
+  }
+
+  button {
+  background-color: #ff9a9e;
+  color: rgba(255, 255, 255, 0.846);
+  height:35px;
+  width:35px;
+  border-radius: 50%;
+  margin-top:11px;
+  margin-left: -40px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+
+
+
+  button[type="submit"] {
+  background-color: #ff9a9e;
+  color: white;
+  height:35px;
+  width:35px;
+  border-radius: 50%;
+  margin-top:11px;
+  margin-left: -40px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+}
+button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid white;
+  border-top-color: transparent;
+  animation: spinner 0.6s linear infinite;
+  display: none;
+}
+
+button[type="submit"]:disabled::before {
+  display: block;
+}
+
+@keyframes spinner {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+.copied {
+  background-color: #00CC99;
+  border: 2px solid white;
+  transition: background-color 0.5s ease;
+}
+
+.status-bar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #00CC99;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.status-bar i {
+  margin-right: 10px;
+}
+
+</style>
+
+</head>
+<body>
+  <form id="form-cep">
+    <label for="cep">Digite o CEP:</label><br>
+    <div style="display: flex;"> 
+        <input type="text" id="cep" name="cep" pattern="\d{8}" required><br>
+        <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+    </div>
+   
+  
+</form>
+  
+  <form>
+    <label for="street">Rua:</label><br>
+    <div style="display: flex;"> 
+        <input type="text" id="street" name="street">
+        <button type="button" id="copy-street"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+    </div>    
+    
+    <br>
+
+    <label for="neighborhood">Bairro:</label><br>
+    <div style="display: flex;"> 
+        <input type="text" id="neighborhood" name="neighborhood">
+        <button type="button" id="copy-neighborhood"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+    </div>    
+    
+    <br>
+
+    <label for="city">Cidade:</label><br>
+    <div style="display: flex;"> 
+        <input type="text" id="city" name="city">
+        <button type="button" id="copy-city"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+    </div>    
+    
+    <br>
+
+    <label for="state">Estado:</label><br>
+    <div style="display: flex;"> 
+        <input type="text" id="state" name="state">
+        <button type="button" id="copy-state"><i class="fa fa-clipboard" aria-hidden="true"></i></button>
+    </div>    
+    
+  </form> 
+
+
+
+  <script>
+    document.getElementById('form-cep').addEventListener('submit', function(event) {
+      // Prevent form submission
+      event.preventDefault();
+    
+      // Get the value of the CEP input field
+      var cep = document.getElementById('cep').value;
+    
+      // Send a GET request to the ViaCEP API
+      fetch('https://viacep.com.br/ws/' + cep + '/json/')
+        .then(function(response) {
+          if (response.ok) {
+            // Parse the response as JSON
+            return response.json();
+          } else {
+            throw new Error('Ocorreu um erro ao tentar obter o endereço. Verifique se o CEP está correto e tente novamente.');
+          }
+        })
+        .then(function(address) {
+          // Fill the input fields with the address data
+          document.getElementById('street').value = address.logradouro;
+          document.getElementById('neighborhood').value = address.bairro;
+          document.getElementById('city').value = address.localidade;
+          document.getElementById('state').value = address.uf;
+        })
+        .catch(function(error) {
+          // Show an error message if there is a problem
+          alert(error.message);
+        });
+    });
+
+
+
+    const copyStreet = document.getElementById('copy-street');
+  copyStreet.addEventListener('click', function() {
+    copyToClipboard(document.getElementById('street'), this);
+  });
+
+  const copyNeighborhood = document.getElementById('copy-neighborhood');
+  copyNeighborhood.addEventListener('click', function() {
+    copyToClipboard(document.getElementById('neighborhood'), this);
+  });
+
+  const copyCity = document.getElementById('copy-city');
+  copyCity.addEventListener('click', function() {
+    copyToClipboard(document.getElementById('city'), this);
+  });
+
+  const copyState = document.getElementById('copy-state');
+  copyState.addEventListener('click', function() {
+    copyToClipboard(document.getElementById('state'), this);
+  });
+
+
+  function copyToClipboard(element, button) {
+    var range = document.createRange();
+    range.selectNode(element);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+
+    // Add class to button element
+    button.classList.add('copied');
+
+    // Create status bar
+    const statusBar = document.createElement('div');
+    statusBar.classList.add('status-bar');
+    statusBar.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i> Copiado para a área de transferência';
+    document.body.appendChild(statusBar);
+
+    // Remove class and status bar after 2 second
+    setTimeout(function() {
+      button.classList.remove('copied');
+      document.body.removeChild(statusBar);
+    }, 2000);
+  }
+  </script>
+
+
+</body>
+</html>
